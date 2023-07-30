@@ -1,0 +1,16 @@
+version: '2.0'
+
+services:
+  ruoyi-admin:
+    container_name: ruoyi-admin
+    image: ruoyi-admin:latest
+    ports:
+      - '9000:9000'
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
+      - TZ=Asia/Shanghai
+    volumes:
+      # 同步时间
+      - /etc/localtime:/etc/localtime:ro
+      - ./logs:/root/ruoyi/logs
+      - ./uploadPath:/root/ruoyi/uploadPath
