@@ -1,5 +1,7 @@
 ## 介绍
 
+**项目地址**：[ruoyi-vue-qiankun](https://github.com/zhongzihao-world/ruoyi-vue-qiankun)
+
 > 基于**RuoYi-Vue**，使用 qiankun 实现微前端；主应用基于 **vue2**，目前接入 **vue2** 子应用。
 
 环境：
@@ -15,8 +17,6 @@
 - vue：2.6.12
 - qiankun：2.8.4
 - spring-boot：2.5.14
-
-项目地址：[ruoyi-vue-qiankun](https://github.com/zhongzihao-world/ruoyi-vue-qiankun)
 
 文档参考：
 * [RuoYi-Vue](https://doc.ruoyi.vip/ruoyi-vue/)
@@ -294,5 +294,60 @@ export async function unmount() {
 [完整代码](https://github.com/zhongzihao-world/ruoyi-vue-qiankun/blob/master/app-vue2/src/main.js)
 
 Ⅲ. 修改 `vue.config.js` 配置文件
+
+
+- 打包为 `umd` 格式
+- 配置 `publicPath` 修复图片资源404问题
+
+```js
+const port = 9002;
+const publicPath =
+  process.env.NODE_ENV === 'production'
+    ? `http://localhost:${port}`
+    : `http://localhost:${port}`;
+
+module.exports = {
+  configureWebpack: {
+    output: {
+      // 把子应用打包成 umd 库格式
+      library: `${name}`,
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_${name}`,
+    },
+  },
+  chainWebpack(config) {
+    // 修复图片打包404问题
+    config.module
+      .rule('fonts')
+      .use('url-loader')
+      .loader('url-loader')
+      .options({
+        limit: 4096, // 小于4kb将会被打包成 base64
+        fallback: {
+          loader: 'file-loader',
+          options: {
+            name: 'fonts/[name].[hash:8].[ext]',
+            publicPath,
+          },
+        },
+      })
+      .end();
+    config.module
+      .rule('images')
+      .use('url-loader')
+      .loader('url-loader')
+      .options({
+        limit: 4096, // 小于4kb将会被打包成 base64
+        fallback: {
+          loader: 'file-loader',
+          options: {
+            name: 'img/[name].[hash:8].[ext]',
+            publicPath,
+          },
+        },
+      });
+  },
+};
+```
 
 [完整代码](https://github.com/zhongzihao-world/ruoyi-vue-qiankun/blob/master/app-vue2/vue.config.js)
